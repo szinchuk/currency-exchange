@@ -1,0 +1,79 @@
+plugins {
+  id 'java'
+  id 'org.springframework.boot' version '3.3.3'
+  id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.spribe'
+version = '0.0.1-SNAPSHOT'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+ext {
+  springBootVersion = '3.3.3'
+  postgresqlVersion = '42.7.3'
+  liquibaseVersion = '4.29.0'
+  apacheHttpClientVersion = '5.3'
+  lombokVersion = '1.18.34'
+  springdocVersion = '2.6.0'
+  testcontainersVersion = '1.20.1'
+  googleGuavaVersion = '33.3.0-jre'
+}
+
+dependencies {
+  implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+  implementation "org.postgresql:postgresql:${postgresqlVersion}"
+  implementation "org.liquibase:liquibase-core:${liquibaseVersion}"
+  implementation "org.apache.httpcomponents.client5:httpclient5:${apacheHttpClientVersion}"
+  implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+  implementation "com.google.guava:guava:${googleGuavaVersion}"
+
+  testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+  testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+  testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+
+  compileOnly "org.projectlombok:lombok:${lombokVersion}"
+  annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
+sourceSets {
+  integrationTest {
+    java {
+      srcDir file('src/integrationTest')
+    }
+    resources {
+      srcDir file('src/integrationTest/resources')
+    }
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+}
+
+configurations {
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
+  integrationTestImplementation.extendsFrom testImplementation
+  integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('integrationTest', Test) {
+  description = 'Run integration tests'
+  group = 'verification'
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+  useJUnitPlatform()
+}

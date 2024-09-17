@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  ce-postgres:
+    container_name: ce-postgres
+    image: postgres:16
+    environment:
+      POSTGRES_DB: currency_exchange
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/lib/postgresql/data
